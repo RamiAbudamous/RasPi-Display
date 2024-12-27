@@ -19,7 +19,7 @@ def getTimings(timings):
     duhr = timeToMins(timings["Dhuhr"])
     asr = timeToMins(timings["Asr"])
     maghrib = timeToMins(timings["Maghrib"])
-    isha = timeToMins(timings["Isha"])
+    isha = int(timeToMins(timings["Isha"]))
     return [fajr, sunrise, duhr, asr, maghrib, isha]
 
 def timeToMins(time):
@@ -33,13 +33,17 @@ def minsToTime(time):
     mins = time%60
     return f"{hours:2}:{str(mins).zfill(2)}"
 
+# define prayer IDs
+prayerID = {0: "Fajr", 1: "Sunrise", 2: "Duhr", 3: "Asr", 4: "Maghrib", 5: "Isha"}
 
-# define locations
+# define states
 DAVIS = 0
 SC = 1
+SPOTIFY = 2
+CALC = 3
 
 # initial values
-currState = 0
+currState = 1
 
 while(1): #runs forever
     state=currState
@@ -70,30 +74,30 @@ while(1): #runs forever
         currTime = f"{now.hour}:{now.minute}"
         currTimeInt = timeToMins(currTime)
 
-        prayerID = {0: "Fajr", 1: "Sunrise", 2: "Duhr", 3: "Asr", 4: "Maghrib", 5: "Isha"}
-        nextPrayer = None
-        nextPrayerName = None
-        for i in range(len(prayerTimes)):
-            if prayerTimes[i]>startTimeInt:
-                nextPrayer = prayerTimes[i]
-                nextPrayerName = prayerID.get(i)
-                break
-
-        #this counts every second, and every 5 mins it goes back to the top
         #when the touchscreen gets added, have that change the state, then this code will also check that state==currState
-        while(currDate==startDate): # only break this loop at midnight
-            os.system('cls')
+        while((currDate==startDate) and (state==currState)): # only break this loop at midnight when the day changes
 
             #update currTime
             nowNow = datetime.now()
             currDate = nowNow.day
             currTime = f"{nowNow.hour}:{nowNow.minute}"
             currTimeInt = timeToMins(currTime)
+            
+            # check if the next prayer time is here
+            nextPrayer = None
+            nextPrayerName = None
+            for i in range(len(prayerTimes)):
+                if prayerTimes[i]>currTimeInt:
+                    nextPrayer = prayerTimes[i]
+                    nextPrayerName = prayerID.get(i)
+                    break
 
             if nextPrayer!=None:
                 timeToNext = nextPrayer-currTimeInt
                 hoursToNext = int(timeToNext/60)
                 minsToNext = int(timeToNext%60)
+
+            os.system('cls')
 
             # now that everything is calculated, print them all
             print(f"     {minsToTime(timeToMins(currTime)).strip()}:{nowNow.second}") #mins to time then time to mins is the easiest way to convert from 24 to 12 hour
