@@ -58,6 +58,7 @@ while(1): #runs forever
 
     while(state==currState): #this checks every 5 mins
         now = datetime.now()
+        startDate = now.day
         startTime = f"{now.hour}:{now.minute}"
         startTimeInt = timeToMins(startTime)
         # now = datetime.fromtimestamp(1735328028)
@@ -69,6 +70,7 @@ while(1): #runs forever
         prayerTimes = getTimings(timings)
 
         #initial currTime
+        currDate = now.day
         currTime = f"{now.hour}:{now.minute}"
         currTimeInt = timeToMins(currTime)
 
@@ -83,7 +85,7 @@ while(1): #runs forever
 
         #this counts every second, and every 5 mins it goes back to the top
         #when the touchscreen gets added, have that change the state, then this code will also check that state==currState
-        while(currTimeInt<startTimeInt+10): #these ints are in minutes, not seconds. so it wont be exactly 10 mins but thats fine
+        while(currDate==startDate): # only break this loop at midnight
             os.system('cls')
 
             if blinker:
@@ -92,6 +94,7 @@ while(1): #runs forever
 
             #update currTime
             nowNow = datetime.now()
+            currDate = nowNow.day
             currTime = f"{nowNow.hour}:{nowNow.minute}"
             currTimeInt = timeToMins(currTime)
 
