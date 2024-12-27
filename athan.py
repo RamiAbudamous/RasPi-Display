@@ -26,15 +26,12 @@ def timeToMins(time):
     hours, minutes = map(int, time.split(':'))
     return (hours*60)+minutes
 
-def minsToTime(time, blinker=True):
+def minsToTime(time):
     hours = int(time/60)
     if hours>12: hours-=12 # convert 24 hour time to 12, ex: 14 becomes 2
     if hours==0: hours=12 # midnight is 12 not 0
     mins = time%60
-
-    if (blinker):
-        return f"{hours:2}:{str(mins).zfill(2)}"
-    else: return f"{hours:2} {str(mins).zfill(2)}"
+    return f"{hours:2}:{str(mins).zfill(2)}"
 
 
 # define locations
@@ -43,7 +40,6 @@ SC = 1
 
 # initial values
 currState = 0
-blinker = True
 
 while(1): #runs forever
     state=currState
@@ -88,10 +84,6 @@ while(1): #runs forever
         while(currDate==startDate): # only break this loop at midnight
             os.system('cls')
 
-            if blinker:
-                blinkedColon = ":"
-            else: blinkedColon = " "
-
             #update currTime
             nowNow = datetime.now()
             currDate = nowNow.day
@@ -104,7 +96,7 @@ while(1): #runs forever
                 minsToNext = int(timeToNext%60)
 
             # now that everything is calculated, print them all
-            print(f"     {minsToTime(timeToMins(currTime), blinker).strip()}{blinkedColon}{nowNow.second}") #mins to time then time to mins is the easiest way to convert from 24 to 12 hour
+            print(f"     {minsToTime(timeToMins(currTime)).strip()}:{nowNow.second}") #mins to time then time to mins is the easiest way to convert from 24 to 12 hour
             print(f"{now.month}/{now.day}/{now.year}, {place}")
             #print timings as time
             print(f"Fajr        {minsToTime(prayerTimes[0])}")
