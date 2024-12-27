@@ -112,7 +112,9 @@ while(1): #runs forever
             print(f"Isha        {minsToTime(prayerTimes[5])}")
 
             if nextPrayer!=None:
-                print(f"{nextPrayerName} in {hoursToNext} hours and {minsToNext} minutes")
+                if hoursToNext!=0:
+                    print(f"{nextPrayerName} in {hoursToNext} hours and {minsToNext} minutes")
+                else: print(f"{nextPrayerName} in {minsToNext} minutes")
             else: print("All Prayers Complete!")
 
             sleep(1) #wait before updating settings
