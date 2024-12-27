@@ -19,7 +19,7 @@ def getTimings(timings):
     duhr = timeToMins(timings["Dhuhr"])
     asr = timeToMins(timings["Asr"])
     maghrib = timeToMins(timings["Maghrib"])
-    isha = int(timeToMins(timings["Isha"]))
+    isha = timeToMins(timings["Isha"])
     return [fajr, sunrise, duhr, asr, maghrib, isha]
 
 def timeToMins(time):
@@ -75,33 +75,27 @@ while(1): #runs forever
         currTimeInt = timeToMins(currTime)
 
         #when the touchscreen gets added, have that change the state, then this code will also check that state==currState
-        while((currDate==startDate) and (state==currState)): # only break this loop at midnight when the day changes
+        while((currDate==startDate) and (state==currState)): # only break this loop at midnight when the day changes, or when the state changes (rather than an interrupt)
 
             #update currTime
             nowNow = datetime.now()
             currDate = nowNow.day
             currTime = f"{nowNow.hour}:{nowNow.minute}"
             currTimeInt = timeToMins(currTime)
+            currTime = f"{minsToTime(timeToMins(currTime))}:{str(nowNow.second).zfill(2)}" #mins to time then time to mins is the easiest way to convert from 24 to 12 hour
             
             # check if the next prayer time is here
             nextPrayer = None
-            nextPrayerName = None
             for i in range(len(prayerTimes)):
                 if prayerTimes[i]>currTimeInt:
                     nextPrayer = prayerTimes[i]
                     nextPrayerName = prayerID.get(i)
                     break
 
-            if nextPrayer!=None:
-                timeToNext = nextPrayer-currTimeInt
-                hoursToNext = int(timeToNext/60)
-                minsToNext = int(timeToNext%60)
-
             os.system('cls')
-
             # now that everything is calculated, print them all
-            print(f"     {minsToTime(timeToMins(currTime)).strip()}:{nowNow.second}") #mins to time then time to mins is the easiest way to convert from 24 to 12 hour
-            print(f"{now.month}/{now.day}/{now.year}, {place}")
+            print(f"     {currTime}")
+            print(f"{nowNow.month}/{nowNow.day}/{nowNow.year}, {place}")
             #print timings as time
             print(f"Fajr        {minsToTime(prayerTimes[0])}")
             print(f"Sunrise     {minsToTime(prayerTimes[1])}")
@@ -111,10 +105,14 @@ while(1): #runs forever
             print(f"Isha        {minsToTime(prayerTimes[5])}")
 
             if nextPrayer!=None:
+                timeToNext = nextPrayer-currTimeInt
+                hoursToNext = int(timeToNext/60)
+                minsToNext = int(timeToNext%60)
                 if hoursToNext!=0:
                     print(f"{nextPrayerName} in {hoursToNext} hours and {minsToNext} minutes")
                 else: print(f"{nextPrayerName} in {minsToNext} minutes")
             else: print("All Prayers Complete!")
 
-            sleep(1) #wait before updating settings
+            sleep(.99) #wait until the next second
+            #.99 because each iteration of this loop takes roughly .005 seconds
 
