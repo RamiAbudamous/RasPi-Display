@@ -1,0 +1,4 @@
+client.txt
+__pycache__
+*cache*
+.cache*
