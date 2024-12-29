@@ -9,13 +9,24 @@ from datetime import datetime
 from scripts import spotifyTrackInfo
 from scripts import calc
 
+# Define States
+MAX_STATES=1
+ATHAN = 0
+SPOTIFY = 1
+CALC = 2
+
+# Spotify substates
+MAX_SPOTIFY_STATES = 1
+SONG_INFO = 0
+CURR_QUEUE = 1
+
 # GLOBALS
 state=0
 currState=0
 # Athan Globals
+maxLocs=-1 #maximum locations, starts as -1 for 0 index.
 locState=0 #location state
 currLocState=0 #current location state that gets changed
-maxLocs=0
 names = []
 lats = []
 longs = []
@@ -24,39 +35,39 @@ prayerID = {0: "Fajr", 1: "Sunrise", 2: "Duhr", 3: "Asr", 4: "Maghrib", 5: "Isha
 playState=0
 currPlayState=0
 
-# Define States
-MAX_STATES=1
-ATHAN = 0
-SPOTIFY = 1
-CALC = 2
 
 #State Management
+def incState(incdState, max):
+    incdState+=1
+    if incdState>max:
+        incdState=0
+    return incdState
+
+def decState(decdState, max):
+    decdState-=1
+    if decdState<0:
+        decdState=max
+    return decdState
+
 def on_click(x, y, button, pressed):
     global currState
     if pressed:
         if button==Button.right:
-            # print("click right")
-            currState+=1
-            if currState>MAX_STATES:
-                currState=0
+            currState = incState(currState, MAX_STATES)
         elif button==Button.left:
             # print("click left")
-            currState-=1
-            if currState<0:
-                currState=MAX_STATES
+            currState = decState(currState, MAX_STATES)
 
 def on_scroll(x, y, dx, dy):
-    global currLocState
+    global currLocState, currPlayState
     if dy>0:
         # print("scroll up")
-        currLocState+=1
-        if currLocState>maxLocs:
-            currLocState=0
+        currLocState = incState(currLocState, maxLocs)
+        currPlayState = incState(currPlayState, MAX_SPOTIFY_STATES)
     elif dy<0:
         # print("scroll down")
-        currLocState-=1
-        if currLocState<0:
-            currLocState=maxLocs
+        currLocState = decState(currLocState, maxLocs)
+        currPlayState = decState(currPlayState, MAX_SPOTIFY_STATES)
 
 # STATES
 def athanState():
@@ -72,7 +83,6 @@ def athanState():
             lats.append(locations[idx+1].strip())
             longs.append(locations[idx+2].strip())
             maxLocs+=1
-    maxLocs-=1 #0 index
     
     while(state==currState):
         locState = currLocState
@@ -134,10 +144,24 @@ def athanState():
 
 def spotifyState():
     while(state==currState):
-        current_track = spotifyTrackInfo.getCurrentTrack()
-        os.system('cls')
-        spotifyTrackInfo.printSongInfo(current_track)
-        sleep(.99)
+        playState = currPlayState
+
+        #call api for info
+        spotifyCreds = spotifyTrackInfo.getSpotifyCreds()
+        current_track = spotifyTrackInfo.getSpotifyTrack(spotifyCreds)
+        # queue = spotifyTrackInfo.getSpotifyQueue(spotifyTrackInfo.getSpotifyCreds())
+        # once you have the queue, you can get the current track from there too.
+        while((state==currState) and (playState==currPlayState)):
+            if playState==SONG_INFO:
+                # maybe have both calls happen ebfore the update. queue displays how far youre into the song
+                os.system('cls')
+                spotifyTrackInfo.printSongInfo(current_track) #and queue, or maybe only queue
+                sleep(.99)
+            elif playState==CURR_QUEUE:
+                os.system('cls')
+                # spotifyTrackInfo.printQueueInfo(queue)
+                print(f"in queue")
+                sleep(.99)
 
 def calcState():
     print("in calc state")

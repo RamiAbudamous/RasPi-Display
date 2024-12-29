@@ -1,5 +1,5 @@
 import spotipy
-import spotipy.util as util
+# import spotipy.util as util
 from spotipy.oauth2 import SpotifyOAuth
 
 def calcProgressBar(progress, duration, segments=10):
@@ -14,7 +14,7 @@ def centerOutput(lines):
     centered_lines = [line.center(max_length) for line in lines]
     return "\n".join(centered_lines)
 
-def getCurrentTrack():
+def getSpotifyCreds():
     with open('data/client.txt', 'r') as client_file:
         clients = client_file.readlines()
         clientID = clients[0].strip()
@@ -23,18 +23,27 @@ def getCurrentTrack():
         username = clients[3].strip()
 
     #only need the first
-    scope = 'user-read-currently-playing user-read-playback-state user-modify-playback-state'
+    scope = 'user-read-playback-state user-read-currently-playing user-modify-playback-state'
 
     # token = util.prompt_for_user_token(username, scope, client_id=clientID, client_secret=clientSec, redirect_uri=redirectUri)
     # spotify = spotipy.Spotify(auth=token)
-    spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(username=username, scope=scope, client_id=clientID, client_secret=clientSec, redirect_uri=redirectUri))
-    return spotify.current_user_playing_track()
+    spotifyCreds = spotipy.Spotify(auth_manager=SpotifyOAuth(username=username, scope=scope, client_id=clientID, client_secret=clientSec, redirect_uri=redirectUri))
+    return spotifyCreds
+
+def getSpotifyTrack(sp):
+    return sp.current_user_playing_track()
+
+def getSpotifyQueue(sp):
+    return sp.queue()
 
 def printSongInfo(current_track):
-
     if current_track!=None:
         # data = json.loads(str(current_track))
         song = current_track["item"] #json of data. not the song name.
+        
+        # get currently playing from queue
+        # song = current_track["currently_playing"] #json of data. not the song name.
+        
         playing = current_track["is_playing"]
         progress_ms = current_track["progress_ms"]
         duration_ms = song["duration_ms"]
