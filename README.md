@@ -1,7 +1,7 @@
-# Athan-Time
+# RasPi Display
 Displays a variety of information on a screen using SPI on a Raspberry Pi.
 The current modules include:
-- Daily athan times depending on the user's set location
+- Daily Athan times depending on the user's set location
 - Currently playing Spotify song and Spotify queue
 
 Create a folder called `data` in the root with 2 files named `client.txt` and `locations.txt`.
