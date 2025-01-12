@@ -2,6 +2,8 @@ import os
 from time import sleep
 from pynput.mouse import Listener, Button
 
+from scripts import system
+
 from scripts import athan
 import datetime
 from datetime import datetime
@@ -10,10 +12,18 @@ from scripts import spotifyTrackInfo
 from scripts import calc
 
 # Define States
-MAX_STATES=1
-ATHAN = 0
-SPOTIFY = 1
-CALC = 2
+MAX_STATES = 2
+SYSTEM = 0
+ATHAN = 1
+SPOTIFY = 2
+CALC = 3
+
+# System sunstates
+OVERVIEW = 0
+CPU = 1
+MEMORY = 2
+DISK = 3
+NETWORK = 4
 
 # Spotify substates
 MAX_SPOTIFY_STATES = 1
@@ -23,6 +33,10 @@ CURR_QUEUE = 1
 # GLOBALS
 state=0
 currState=0
+# System Globals
+MAX_SYSTEM_STATES = 4
+sysState = 0
+currSysState = 0
 # Athan Globals
 maxLocs=-1 #maximum locations, starts as -1 for 0 index.
 locState=0 #location state
@@ -30,7 +44,6 @@ currLocState=0 #current location state that gets changed
 names = []
 lats = []
 longs = []
-prayerID = {0: "Fajr", 1: "Sunrise", 2: "Duhr", 3: "Asr", 4: "Maghrib", 5: "Isha"}
 # Spotify Globals
 playState=0
 currPlayState=0
@@ -52,24 +65,44 @@ def decState(decdState, max):
 def on_click(x, y, button, pressed):
     global currState
     if pressed:
-        if button==Button.right:
+        if button==Button.left:
             currState = incState(currState, MAX_STATES)
-        elif button==Button.left:
-            # print("click left")
+        elif button==Button.right:
+            # print("click right")
             currState = decState(currState, MAX_STATES)
 
 def on_scroll(x, y, dx, dy):
-    global currLocState, currPlayState
+    global currSysState, currLocState, currPlayState
     if dy>0:
         # print("scroll up")
+        currSysState = incState(currSysState, MAX_SYSTEM_STATES)
         currLocState = incState(currLocState, maxLocs)
         currPlayState = incState(currPlayState, MAX_SPOTIFY_STATES)
     elif dy<0:
         # print("scroll down")
+        currSysState = decState(currSysState, MAX_SYSTEM_STATES)
         currLocState = decState(currLocState, maxLocs)
         currPlayState = decState(currPlayState, MAX_SPOTIFY_STATES)
 
 # STATES
+def systemState():
+    while(state==currState):
+        sysState = currSysState
+        while((state==currState) and (sysState==currSysState)):
+            
+            if sysState==OVERVIEW:
+                system.getStats()
+            elif sysState==CPU:
+                system.getCPUStats()
+            elif sysState==MEMORY:
+                system.getMemStats()
+            elif sysState==DISK:
+                system.getDiskStats()
+            elif sysState==NETWORK:
+                system.getNetStats()
+
+            sleep(.99)
+
 def athanState():
     global maxLocs, locState, currState
     
@@ -86,8 +119,8 @@ def athanState():
     
     while(state==currState):
         locState = currLocState
-
         now = datetime.now()
+
         startDate = now.day
         startTime = f"{now.hour}:{now.minute}"
         startTimeInt = athan.timeToMins(startTime)
@@ -102,44 +135,7 @@ def athanState():
         currTimeInt = athan.timeToMins(currTime)
 
         while((currDate==startDate) and (state==currState) and (locState==currLocState)):
-            #update currTime
-            nowNow = datetime.now()
-            currDate = nowNow.day
-            currTime = f"{nowNow.hour}:{nowNow.minute}"
-            currTimeInt = athan.timeToMins(currTime)
-            currTime = f"{athan.minsToTime(athan.timeToMins(currTime))}:{str(nowNow.second).zfill(2)}" #mins to time then time to mins is the easiest way to convert from 24 to 12 hour
-            
-            # check if the next prayer time is here
-            nextPrayer = None
-            for i in range(len(prayerTimes)):
-                if prayerTimes[i]>currTimeInt:
-                    nextPrayer = prayerTimes[i]
-                    nextPrayerName = prayerID.get(i)
-                    break
-
-            os.system('cls')
-            # now that everything is calculated, print them all
-            print(f"     {currTime}")
-            print(f"{nowNow.month}/{nowNow.day}/{nowNow.year}, {names[locState]}")
-            #print timings as time
-            print(f"Fajr        {athan.minsToTime(prayerTimes[0])}")
-            print(f"Sunrise     {athan.minsToTime(prayerTimes[1])}")
-            print(f"Duhr        {athan.minsToTime(prayerTimes[2])}")
-            print(f"Asr         {athan.minsToTime(prayerTimes[3])}")
-            print(f"Maghrib     {athan.minsToTime(prayerTimes[4])}")
-            print(f"Isha        {athan.minsToTime(prayerTimes[5])}")
-
-            if nextPrayer!=None:
-                timeToNext = nextPrayer-currTimeInt
-                hoursToNext = int(timeToNext/60)
-                minsToNext = int(timeToNext%60)
-                if hoursToNext!=0:
-                    print(f"{nextPrayerName} in {hoursToNext} hours and {minsToNext} minutes")
-                else: print(f"{nextPrayerName} in {minsToNext} minutes")
-            else: print("All Prayers Complete!")
-
-            sleep(.99) #wait until the next second
-            #.99 because each iteration of this loop takes roughly .005 seconds
+            athan.outputAthan(prayerTimes, names[locState])
 
 
 def spotifyState():
@@ -148,12 +144,12 @@ def spotifyState():
 
         #call api for info
         spotifyCreds = spotifyTrackInfo.getSpotifyCreds()
-        current_track = spotifyTrackInfo.getSpotifyTrack(spotifyCreds)
         # queue = spotifyTrackInfo.getSpotifyQueue(spotifyTrackInfo.getSpotifyCreds())
         # once you have the queue, you can get the current track from there too.
         while((state==currState) and (playState==currPlayState)):
             if playState==SONG_INFO:
                 # maybe have both calls happen ebfore the update. queue displays how far youre into the song
+                current_track = spotifyTrackInfo.getSpotifyTrack(spotifyCreds)
                 os.system('cls')
                 spotifyTrackInfo.printSongInfo(current_track) #and queue, or maybe only queue
                 sleep(.99)
@@ -176,12 +172,14 @@ def mainState():
         state=currState
 
         # print(f"in state selector, state={state}, currstate={currState}, maxstates={MAX_STATES}")
-        if state==ATHAN:
+        if state==SYSTEM:
+            systemState()
+        elif state==ATHAN:
             athanState()
         elif state==SPOTIFY:
             spotifyState()
         elif state==CALC:
-            calcState
+            calcState()
         else:
             print("INVALID STATE")
             exit(1)

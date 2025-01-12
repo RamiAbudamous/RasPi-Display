@@ -24,6 +24,7 @@ def getSpotifyCreds():
 
     #only need the first
     scope = 'user-read-playback-state user-read-currently-playing user-modify-playback-state'
+    # scope = 'user-modify-playback-state'
 
     # token = util.prompt_for_user_token(username, scope, client_id=clientID, client_secret=clientSec, redirect_uri=redirectUri)
     # spotify = spotipy.Spotify(auth=token)
