@@ -122,8 +122,6 @@ def athanState():
         now = datetime.now()
 
         startDate = now.day
-        startTime = f"{now.hour}:{now.minute}"
-        startTimeInt = athan.timeToMins(startTime)
 
         data = athan.callAthanAPI(now, lats[locState], longs[locState])
         timings = data["data"]["timings"]
@@ -131,11 +129,11 @@ def athanState():
 
         #initial currTime
         currDate = now.day
-        currTime = f"{now.hour}:{now.minute}"
-        currTimeInt = athan.timeToMins(currTime)
 
         while((currDate==startDate) and (state==currState) and (locState==currLocState)):
-            athan.outputAthan(prayerTimes, names[locState])
+            currTime = datetime.now()
+            currDate = currTime.date
+            athan.outputAthan(prayerTimes, names[locState], currTime)
 
 
 def spotifyState():

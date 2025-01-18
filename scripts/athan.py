@@ -36,10 +36,7 @@ def minsToTime(time):
     return f"{hours:2}:{str(mins).zfill(2)}"
 
 
-def outputAthan(prayerTimes, locationName):
-    #update currTime
-    nowNow = datetime.now()
-    currDate = nowNow.day
+def outputAthan(prayerTimes, locationName, nowNow):
     currTime = f"{nowNow.hour}:{nowNow.minute}"
     currTimeInt = timeToMins(currTime)
     currTime = f"{minsToTime(timeToMins(currTime))}:{str(nowNow.second).zfill(2)}" #mins to time then time to mins is the easiest way to convert from 24 to 12 hour

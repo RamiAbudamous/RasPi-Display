@@ -51,7 +51,14 @@ def printSongInfo(current_track):
 
 
         album = song["album"]["name"]
-        art = song["album"]["images"][0]["url"] #might be [0][url]
+        art = song["album"]["images"][1]["url"]
+
+        print("300x300")
+        print(song["album"]["images"][1])
+        print("64x64")
+        print(song["album"]["images"][2])
+        exit(0)
+        
         songName = song["name"]
 
         artists = []
