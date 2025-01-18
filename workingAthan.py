@@ -20,10 +20,11 @@ display = 0
 WIDTH = 240
 HEIGHT = 320
 ROT = 90
+BACKGROUND_COLOR = 0x2ABCDE
+TEXT_COLOR = 0xF7EE0B
 
 prayerID = {0: "Fajr", 1: "Sunrise", 2: "Duhr", 3: "Asr", 4: "Maghrib", 5: "Isha"}
 PRAYER_TEXT_SCALE = 2
-PRAYER_TEXT_COLOR = 0xF7EE0B
 
 maxLocs=-1 #maximum locations, starts as -1 for 0 index.
 locState=0 #location state
@@ -64,19 +65,15 @@ def minsToTime(time):
 
 def outputAthan(prayerTimes, locationName, nowNow):
 
-    # screen stuff
-
     # background
     bitmap = displayio.Bitmap(WIDTH-1, HEIGHT-1, 1)
     palette = displayio.Palette(1)
-    palette[0] = 0x2ABCDE
+    palette[0] = BACKGROUND_COLOR
 
     tile_grid = displayio.TileGrid(bitmap, pixel_shader=palette)
     mainGroup = displayio.Group()
     mainGroup.append(tile_grid)
     display.root_group = mainGroup
-
-
 
     currTime = f"{nowNow.hour}:{nowNow.minute}"
     currTimeInt = timeToMins(currTime)
@@ -90,23 +87,24 @@ def outputAthan(prayerTimes, locationName, nowNow):
             nextPrayerName = prayerID.get(i)
             break
 
-
     # create time label
     font = terminalio.FONT
     # font = bitmap_font.load_font("bdf/icl8x8u.bdf")
     # font = bitmap_font.load_font("fonts/Chroma48Medium-8.bdf")
     # font = bitmap_font.load_font("fonts/Junction-regular-24.bdf")
     # font = bitmap_font.load_font("fonts/LeagueSpartan-Bold-16.bdf")
-    color=0xF7EE0B
-    timeLabel = label.Label(font, text=currTime, color=color, scale=3)
+    timeLabel = label.Label(font, text=currTime, color=TEXT_COLOR, scale=3)
     timeLabel.anchor_point = (.5, 0)
     timeLabel.anchored_position = ((WIDTH-1)/2, (HEIGHT-1)/10)
+    timeLabel.padding_left = 24 #padding so that the text doesnt overlap on itself. might have to replace with a background
+    timeLabel.padding_right = 24
     mainGroup.append(timeLabel)
 
     # date label
     # currDate = f"{calendar.month_name[nowNow.month]} {nowNow.day}, {nowNow.year} | {locationName}"
-    currDate = f"{nowNow.month}/{nowNow.day}/{nowNow.year} | {locationName}"
-    dateLabel = label.Label(font, text=currDate, color=color, scale=2)
+    # too long for the display lmao
+    currDate = f"{nowNow.month}/{nowNow.day}/{nowNow.year} - {locationName}"
+    dateLabel = label.Label(font, text=currDate, color=TEXT_COLOR, scale=2)
     dateLabel.anchor_point = (.5, 0)
     dateLabel.anchored_position = ((WIDTH-1)/2, ((HEIGHT-1)/8)+((HEIGHT-1)/8))
     mainGroup.append(dateLabel)
@@ -119,32 +117,32 @@ def outputAthan(prayerTimes, locationName, nowNow):
     ishaText =    f"Isha        {minsToTime(prayerTimes[5])}"
 
     # prayer labels
-    fajrLabel = label.Label(font, text=fajrText, color=PRAYER_TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
+    fajrLabel = label.Label(font, text=fajrText, color=TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
     fajrLabel.anchor_point = (0, 0)
     fajrLabel.anchored_position = (16, 120)
     mainGroup.append(fajrLabel)
     
-    sunriseLabel = label.Label(font, text=sunriseText, color=PRAYER_TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
+    sunriseLabel = label.Label(font, text=sunriseText, color=TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
     sunriseLabel.anchor_point = (0, 0)
     sunriseLabel.anchored_position = (16, 120 + (12*PRAYER_TEXT_SCALE*1))
     mainGroup.append(sunriseLabel)
     
-    duhrLabel = label.Label(font, text=duhrText, color=PRAYER_TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
+    duhrLabel = label.Label(font, text=duhrText, color=TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
     duhrLabel.anchor_point = (0, 0)
     duhrLabel.anchored_position = (16, 120 + (12*PRAYER_TEXT_SCALE*2))
     mainGroup.append(duhrLabel)
     
-    asrLabel = label.Label(font, text=asrText, color=PRAYER_TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
+    asrLabel = label.Label(font, text=asrText, color=TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
     asrLabel.anchor_point = (0, 0)
     asrLabel.anchored_position = (16, 120 + (12*PRAYER_TEXT_SCALE*3))
     mainGroup.append(asrLabel)
     
-    maghribLabel = label.Label(font, text=maghribText, color=PRAYER_TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
+    maghribLabel = label.Label(font, text=maghribText, color=TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
     maghribLabel.anchor_point = (0, 0)
     maghribLabel.anchored_position = (16, 120 + (12*PRAYER_TEXT_SCALE*4))
     mainGroup.append(maghribLabel)
     
-    ishaLabel = label.Label(font, text=ishaText, color=PRAYER_TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
+    ishaLabel = label.Label(font, text=ishaText, color=TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
     ishaLabel.anchor_point = (0, 0)
     ishaLabel.anchored_position = (16, 120 + (12*PRAYER_TEXT_SCALE*5))
     mainGroup.append(ishaLabel)
@@ -156,9 +154,9 @@ def outputAthan(prayerTimes, locationName, nowNow):
         if hoursToNext!=0:
             nextText = f"{nextPrayerName} in {hoursToNext} hours and {minsToNext} mins"
         else: nextText = f"{nextPrayerName} in {minsToNext} mins"
-    else: nextText = "All Prayers Complete!"
+    else: nextText = "All Prayers Done!"
 
-    nextLabel = label.Label(font, text=nextText, color=PRAYER_TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
+    nextLabel = label.Label(font, text=nextText, color=TEXT_COLOR, scale=PRAYER_TEXT_SCALE)
     nextLabel.anchor_point = (.5, 0)
     nextLabel.anchored_position = ((WIDTH-1)/2, 128 + (12*PRAYER_TEXT_SCALE*6))
     mainGroup.append(nextLabel)
@@ -193,6 +191,17 @@ def outputAthan(prayerTimes, locationName, nowNow):
                 nextPrayerNewState = prayerTimes[i]
                 break
     
+        # Updating mins until next prayer
+        if nextPrayer!=None:
+            timeToNext = nextPrayer-currTimeInt
+            hoursToNext = int(timeToNext/60)
+            minsToNext = int(timeToNext%60)
+            if hoursToNext!=0:
+                nextText = f"{nextPrayerName} in {hoursToNext} hours and {minsToNext} mins"
+            else: nextText = f"{nextPrayerName} in {minsToNext} mins"
+        else: nextText = "All Prayers Done!"
+        nextLabel.text = nextText
+
         sleep(.99) #wait until the next second
         #.99 because each iteration of this loop takes roughly .005 seconds
 

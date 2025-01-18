@@ -4,7 +4,7 @@ The current modules include:
 - Current system information including CPU temps, RAM and disk usage, and network speeds
 - Daily Athan times depending on the user's set location
 - Currently playing Spotify song ~~and Spotify queue~~ (Fetching the queue is locked to Spotify Premium)
-- Weather forecast for the user's set location
+- ~~Weather forecast for the user's set location~~ (Not implemented yet)
 
 Each module also includes a number of substates:
 - The system information module has substates with more in depth information on the CPU, RAM, Disk, and Network
@@ -17,6 +17,6 @@ The currently showing module and substate can be changed by tapping the screen. 
 
 Create a folder called `data` in the root with 2 files named `client.txt` and `locations.txt`.
 
-`client.txt` has 4 lines, the spotify client ID, the spotify client secret, the redirect URI (try `http://localhost:8888/callback`), and the spotify username. Get the spotify username by clicking your icon in the top right of the web app and going to account -> edit-profile. It should be a 28 digit random string.
+`client.txt` has 4 lines, the Spotify client ID, the Spotify client secret, the redirect URI (try `http://localhost:8888/callback`), and the Spotify username. Get the Spotify username by clicking your icon in the top right of the web app and going to account -> edit-profile. It should be a 28 digit random string.
 
 `locations.txt` takes 3 lines per location. The location name, the latitude coordinates, and the longitude coordinates. I rounded the coordinates to 5 digits, but you can be more or less specific if you'd like.
