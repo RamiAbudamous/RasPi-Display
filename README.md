@@ -20,3 +20,6 @@ Create a folder called `data` in the root with 2 files named `client.txt` and `l
 `client.txt` has 4 lines, the Spotify client ID, the Spotify client secret, the redirect URI (try `http://localhost:8888/callback`), and the Spotify username. Get the Spotify username by clicking your icon in the top right of the web app and going to account -> edit-profile. It should be a 28 digit random string.
 
 `locations.txt` takes 3 lines per location. The location name, the latitude coordinates, and the longitude coordinates. I rounded the coordinates to 5 digits, but you can be more or less specific if you'd like.
+
+This project is still a WIP.
+Progress pictures: https://imgur.com/a/5Rwe2t4

@@ -1,6 +1,8 @@
 import spotipy
 # import spotipy.util as util
 from spotipy.oauth2 import SpotifyOAuth
+import urllib.request
+from PIL import Image
 
 def calcProgressBar(progress, duration, segments=10):
     percentage = progress/duration
@@ -37,6 +39,11 @@ def getSpotifyTrack(sp):
 def getSpotifyQueue(sp):
     return sp.queue()
 
+def displayImg(imageURL):
+    urllib.request.urlretrieve(imageURL, "image.png")
+    img = Image.open(r"image.png")
+    img.show()
+
 def printSongInfo(current_track):
     if current_track!=None:
         # data = json.loads(str(current_track))
@@ -53,11 +60,11 @@ def printSongInfo(current_track):
         album = song["album"]["name"]
         art = song["album"]["images"][1]["url"]
 
-        print("300x300")
-        print(song["album"]["images"][1])
-        print("64x64")
-        print(song["album"]["images"][2])
-        exit(0)
+        # print("300x300")
+        # print(song["album"]["images"][1])
+        # print("64x64")
+        # print(song["album"]["images"][2])
+        # exit(0)
         
         songName = song["name"]
 
@@ -87,5 +94,7 @@ def printSongInfo(current_track):
         lines = [songName, artistList, album, playEmoji, f"{progress_min} {bar} {duration_min}"]
         # print(f"{songName}\n{artistList}\n{album}\n{progress_min} {bar} {duration_min}\n\n{art}")
         print(centerOutput(lines))
-        print(f"\n\nImage link:\n{art}")
+        # print(f"\n\nImage link:\n{art}")
     else: print("Not playing a song.")
+
+    return art

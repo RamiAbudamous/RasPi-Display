@@ -3,3 +3,4 @@ locations.txt
 __pycache__
 *cache*
 .cache*
+image.png

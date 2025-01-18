@@ -47,6 +47,7 @@ longs = []
 # Spotify Globals
 playState=0
 currPlayState=0
+spotifyImage=""
 
 
 #State Management
@@ -138,6 +139,7 @@ def athanState():
 
 def spotifyState():
     while(state==currState):
+        global spotifyImage
         playState = currPlayState
 
         #call api for info
@@ -149,8 +151,12 @@ def spotifyState():
                 # maybe have both calls happen ebfore the update. queue displays how far youre into the song
                 current_track = spotifyTrackInfo.getSpotifyTrack(spotifyCreds)
                 os.system('cls')
-                spotifyTrackInfo.printSongInfo(current_track) #and queue, or maybe only queue
+                newSpotifyImage = spotifyTrackInfo.printSongInfo(current_track) #and queue, or maybe only queue
+                if newSpotifyImage!=spotifyImage:
+                    spotifyImage = newSpotifyImage
+                    spotifyTrackInfo.displayImg(spotifyImage)
                 sleep(.99)
+
             elif playState==CURR_QUEUE:
                 os.system('cls')
                 # spotifyTrackInfo.printQueueInfo(queue)
